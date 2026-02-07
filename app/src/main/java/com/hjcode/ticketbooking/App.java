@@ -5,10 +5,13 @@ package com.hjcode.ticketbooking;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
+import com.hjcode.ticketbooking.entities.Train;
 import com.hjcode.ticketbooking.entities.User;
+import com.hjcode.ticketbooking.services.TrainService;
 import com.hjcode.ticketbooking.services.UserBookingService;
 import com.hjcode.ticketbooking.util.UserServiceUtil;
 
@@ -24,6 +27,16 @@ public class App {
             System.out.println("Error initializing the booking service: " + e.getMessage());
             return;
         }
+        TrainService trainService;
+        try {
+            trainService = new TrainService();
+        } catch (IOException e) {
+            System.out.println("Error initializing the train service: " + e.getMessage());
+            return;
+        }
+        String selectedTrain = null;
+        String destination = null;
+        String source = null;
         while (option != 7) {
             System.out.println("Choose option");
             System.out.println("1. Sign up");
@@ -72,10 +85,53 @@ public class App {
                     userBookingService.fetchBooking();
                     break;
                 case 4:
-                    // Search Trains logic here
+                    System.out.println("Searching for trains...:");
+                    System.out.println("Enther source station:");
+                    source = scanner.next();
+                    System.out.println("Enter destination station:");
+                    destination = scanner.next();
+                    List<Train> trains = trainService.SearchTrains(source, destination);
+                    if (trains != null && !trains.isEmpty()) {
+                        System.out.println("Trains found:");
+                        for (Train train : trains) {
+                            System.out.println(train.getTrainId());
+                        }
+                        System.out.println("Enter the train ID to view available seats:");
+                        selectedTrain = scanner.next();
+                    } else {
+                        System.out.println("No trains found for the given source and destination.");
+                    }
                     break;
                 case 5:
-                    // Book a Seat logic here
+                    System.out.println("Booking Seats...")
+                    Train trainToBook = trainService.getTrainById(selectedTrain);
+                    System.out.println("Select Seats...");
+                    try {
+                        trainService = new TrainService(trainToBook);
+                    } catch (IOException e) {
+                        System.out.println("Error initializing the booking service: " + e.getMessage());
+                        return;
+                    }
+                    List<List<Integer>> seats = trainService.fetchSeats();
+                    for (List<Integer> row: seats){
+                        for (Integer val: row){
+                            System.out.print(val+" ");
+                        }
+                        System.out.println();
+                    }
+                    System.out.println("Select the seat by typing the row and column");
+                    System.out.println("Enter the row");
+                    int row = scanner.nextInt();
+                    System.out.println("Enter the column");
+                    int col = scanner.nextInt();
+                    System.out.println("Booking your seat....");
+                    Boolean seatBooked = userBookingService.bookTrain(trainToBook, destination, source, row, col);
+                    if(seatBooked.equals(Boolean.TRUE)){
+                        System.out.println("Booked! Enjoy your journey");
+                    }
+                    else{
+                        System.out.println("Can't book this seat");
+                    }
                     break;
                 case 6:
                     // Cancel my Booking logic here

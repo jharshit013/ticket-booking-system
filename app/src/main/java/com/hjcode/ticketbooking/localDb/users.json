@@ -9,7 +9,7 @@
                 "user_id": "abcdefgh",
                 "source": "Bangalore",
                 "destination": "Delhi",
-                "date_of_travel": "2025-12-08T18:30:00Z",
+                // "date_of_travel": "2025-12-08T18:30:00Z",
                 "train": {
                     "train_id": "bacs",
                     "train_no": "12345",
@@ -47,11 +47,11 @@
                             0
                         ]
                     ],
-                    "station_times": {
-                        "Bangalore": "13:50:00",
-                        "Jaipur": "13:50:00",
-                        "Delhi": "13:50:00"
-                    },
+                    // "station_times": {
+                    //     "Bangalore": "13:50:00",
+                    //     "Jaipur": "13:50:00",
+                    //     "Delhi": "13:50:00"
+                    // },
                     "stations": [
                         "Bangalore",
                         "Jaipur",
@@ -63,12 +63,5 @@
             }
         ],
         "user_id": "abcdefgh"
-    },
-    {
-        "name": "rokcy",
-        "password": "hhbb11",
-        "hashed_password": "$2a$10$O/OWE.xh3gttMANiM4BIX.mo.4/myik1J739DZ25ecVENk8xhMCW2",
-        "tickets_booked": [],
-        "user_id": "fe46da4d-c8d1-4229-97e6-600dce6941e8"
     }
 ]

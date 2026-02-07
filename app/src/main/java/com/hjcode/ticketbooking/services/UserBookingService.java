@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hjcode.ticketbooking.entities.Ticket;
+import com.hjcode.ticketbooking.entities.Train;
 import com.hjcode.ticketbooking.entities.User;
 import com.hjcode.ticketbooking.util.UserServiceUtil;
 
@@ -65,24 +66,48 @@ public class UserBookingService {
 
     private void saveUsersToFile() throws JsonGenerationException, JsonMappingException, IOException {
         File userFile = new File(USERS_PATH);
-        objectMapper.writeValue(userFile, userList); // serialize the userList to the json file
+        objectMapper.writerWithDefaultPrettyPrinter().writeValue(userFile, userList); // serialize the userList to the
+                                                                                      // json file
     }
 
     public void fetchBooking() {
         user.printTickets();
     }
 
-    public Boolean cancelBooking(String ticketId) {
-        List<Ticket> tickets = user.getTicketsBooked();
-        Optional<Ticket> ticketToCancel = tickets.stream().filter(t -> t.getTicketId().equals(ticketId)).findFirst();
-        if (ticketToCancel.isPresent()) {
-            tickets.remove(ticketToCancel.get());
+    public Boolean bookTrain(Train train, String destination, String source, int row, int seatNo) throws IOException {
+        TrainService trainService = new TrainService(train);
+        if (trainService.bookSeat(row, seatNo)) {
+            Ticket ticket = new Ticket(train.getTrainId(), user.getUserId(), destination, source, train, row, seatNo);
+            user.getTicketsBooked().add(ticket);
             try {
                 saveUsersToFile();
                 return Boolean.TRUE;
             } catch (IOException e) {
                 e.printStackTrace();
                 return Boolean.FALSE;
+            }
+        } else {
+            return Boolean.FALSE; // booking failed
+        }
+    }
+
+    public Boolean cancelBooking(String ticketId, Train train) throws IOException {
+        List<Ticket> tickets = user.getTicketsBooked();
+        Optional<Ticket> ticketToCancel = tickets.stream().filter(t -> t.getTicketId().equals(ticketId)).findFirst();
+        if (ticketToCancel.isPresent()) {
+            Ticket ticket = ticketToCancel.get();
+            TrainService trainService = new TrainService(train);
+            if (trainService.cancelSeat(ticket.getSeatRow(), ticket.getSeatNo())) {
+                tickets.remove(ticket);
+                try {
+                    saveUsersToFile();
+                    return Boolean.TRUE;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return Boolean.FALSE;
+                }
+            } else {
+                return Boolean.FALSE; // cancellation failed
             }
         } else {
             return Boolean.FALSE; // ticket not found
