@@ -24,15 +24,23 @@ public class UserBookingService {
 
     private static final String USERS_PATH = "../localDb/users.json";
 
+    public UserBookingService() throws IOException {
+        loadUsers();
+    }
+
+    public List<User> loadUsers() throws IOException {
+        File users = new File(USERS_PATH);
+        return this.objectMapper.readValue(users, new TypeReference<List<User>>() { // read the users from the json
+                                                                                    // file and map them to a list
+                                                                                    // of User objects and
+                                                                                    // TypeReference is used to
+                                                                                    // specify the type of the list
+        });
+    }
+
     public UserBookingService(User user) throws IOException {
         this.user = user;
-        File users = new File(USERS_PATH);
-        userList = this.objectMapper.readValue(users, new TypeReference<List<User>>() { // read the users from the json
-                                                                                        // file and map them to a list
-                                                                                        // of User objects and
-                                                                                        // TypeReference is used to
-                                                                                        // specify the type of the list
-        });
+        loadUsers();
     }
 
     public Boolean loginUser() {

@@ -3,8 +3,89 @@
  */
 package com.hjcode.ticketbooking;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.UUID;
+
+import com.hjcode.ticketbooking.entities.User;
+import com.hjcode.ticketbooking.services.UserBookingService;
+import com.hjcode.ticketbooking.util.UserServiceUtil;
+
 public class App {
     public static void main(String[] args) {
-
+        System.out.println("Train Ticket Booking Application is running...");
+        Scanner scanner = new Scanner(System.in);
+        int option = 0;
+        UserBookingService userBookingService;
+        try {
+            userBookingService = new UserBookingService();
+        } catch (IOException e) {
+            System.out.println("Error initializing the booking service: " + e.getMessage());
+            return;
+        }
+        while (option != 7) {
+            System.out.println("Choose option");
+            System.out.println("1. Sign up");
+            System.out.println("2. Login");
+            System.out.println("3. Fetch Bookings");
+            System.out.println("4. Search Trains");
+            System.out.println("5. Book a Seat");
+            System.out.println("6. Cancel my Booking");
+            System.out.println("7. Exit the App");
+            option = scanner.nextInt();
+            switch (option) {
+                case 1:
+                    System.out.println("Enter your username to Sign Up");
+                    String username = scanner.next();
+                    System.out.println("Enter your password to Sign Up");
+                    String password = scanner.next();
+                    User newUser = new User(username, password, UserServiceUtil.hashPassword(password),
+                            new ArrayList<>(), UUID.randomUUID().toString());
+                    if (userBookingService.signUp(newUser)) {
+                        System.out.println("User signed up successfully!");
+                    } else {
+                        System.out.println("Error signing up the user. Please try again.");
+                    }
+                    break;
+                case 2:
+                    System.out.println("Enter your username to Login");
+                    String loginUsername = scanner.next();
+                    System.out.println("Enter your password to Login");
+                    String loginPassword = scanner.next();
+                    User loginUser = new User(loginUsername, loginPassword, UserServiceUtil.hashPassword(loginPassword),
+                            new ArrayList<>(), UUID.randomUUID().toString());
+                    try {
+                        userBookingService = new UserBookingService(loginUser);
+                    } catch (IOException e) {
+                        System.out.println("Error initializing the booking service: " + e.getMessage());
+                        return;
+                    }
+                    if (userBookingService.loginUser()) {
+                        System.out.println("User logged in successfully!");
+                    } else {
+                        System.out.println("Invalid username or password. Please try again.");
+                    }
+                    break;
+                case 3:
+                    System.out.println("Fetching your bookings...");
+                    userBookingService.fetchBooking();
+                    break;
+                case 4:
+                    // Search Trains logic here
+                    break;
+                case 5:
+                    // Book a Seat logic here
+                    break;
+                case 6:
+                    // Cancel my Booking logic here
+                    break;
+                case 7:
+                    System.out.println("Exiting the application. Goodbye!");
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
     }
 }
