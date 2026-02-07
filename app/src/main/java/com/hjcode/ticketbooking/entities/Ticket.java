@@ -1,6 +1,6 @@
 package com.hjcode.ticketbooking.entities;
 
-import java.sql.Date;
+// import java.sql.Date;
 
 public class Ticket {
     private String ticketId;
